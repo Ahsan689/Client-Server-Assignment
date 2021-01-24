@@ -1,0 +1,261 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>MarkSheet</title>
+    <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.5.1/jquery.min.js"></script>
+    <link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/3.4.1/css/bootstrap.min.css">    
+    <script src="https://maxcdn.bootstrapcdn.com/bootstrap/3.4.1/js/bootstrap.min.js"></script>
+  
+
+
+</head>
+<body>
+    <h1 class="container">Marksheet</h1>
+    <hr />
+    <div>
+        <table class="container">
+            <tr>
+                <td>
+                    <table >
+                        <tr >
+                            <td style="padding: 15px; padding-bottom: 15px;">
+                                <label>Enter the name of student :</label>
+                            </td>
+                            <td style="padding-top: 15px; padding-bottom: 11px;">
+                                <input class="form-control" type="text" id="nameOfStudent"  />
+                            </td>
+                        </tr>                    
+                        <tr >
+                            <td style="padding: 15px; padding-bottom: 35px;">
+                                <label>Enter the number of subjects : </label>
+                            </td>
+                            <td style="padding-top: 10px; padding-bottom: 30px;">
+                                <input class="form-control" type="number" id="noOfSubjects" min="1" 
+                                    onkeyup="UIPopulate()" />
+                            </td>
+                        </tr>
+                        <tr>
+                            <td colspan="2" style="padding: 0px 30px;">
+                                <button  class="btn btn-primary btn-lg" onclick="Submit()" class="customButton">Submit</button> 
+                            </td>
+                          
+                            
+                        </tr>
+                    </table>
+                </td>
+                <td>
+                    <table>
+                        <tr>
+                            <td style="padding: 15px; padding-top: 30px;">
+                                <label>Min Marks Subject: </label>
+                            </td>
+                            <td style="padding-top: 15px;">
+                                <input class="form-control" type="text" id="minMarksSubject" readonly="readonly" />
+                            </td>
+                            <td style="padding: 15px; padding-top: 30px;">
+                                <label>Min Marks: </label>
+                            </td>
+                            <td style="padding-top: 15px;">
+                                <input class="form-control" type="text" id="minMarks" readonly="readonly" />
+                            </td>
+                        </tr> 
+                        <tr>
+                            <td style="padding: 15px; padding-top: 30px;">
+                                <label>Max Marks Subject: </label>
+                            </td>
+                            <td style="padding-top: 15px;">
+                                <input class="form-control" type="text" id="maxMarksSubject" readonly="readonly" />
+                            </td>
+                            <td style="padding: 15px; padding-top: 30px;">
+                                <label>Max Marks: </label>
+                            </td>
+                            <td style="padding-top: 15px;">
+                                <input class="form-control" type="text" id="maxMarks" readonly="readonly" />
+                            </td>
+                        </tr>
+                        <tr>
+                            <td style="padding: 15px; padding-top: 30px;">
+                                <label>Percentage : </label>
+                            </td>
+                            <td style="padding-top: 15px;">
+                                <input class="form-control" type="text" id="percentage" readonly="readonly" />
+
+                            </td> 
+                        </tr>
+                    </table>
+                </td>
+            </tr>
+
+        </table>
+        <div style="padding: 0px 30px;" class="container">
+        <button class="btn btn-success btn-md" onclick="Calculate()"> Calculate </button>     
+        </div>
+    </div>  <br> <br>
+      <hr />  
+    <div>
+        <table id="inputTable">    
+        </table>
+        
+    </div>
+</body>
+<script>
+
+    function Submit() {
+       
+        //YOUR CODE GOES HERE
+        var noOfSubjects = $('#noOfSubjects').val();
+        var Totalno = 100*noOfSubjects;
+        console.log(Totalno);
+        var obj1 = {};
+    
+        var studentStr = "";
+
+        for (i = 0; i < noOfSubjects; i++)          // for loop for sending string object to server side.
+        {
+    
+           var subjectName = $("#subjectName"+ i).val();  //  subjectName HERE..!!
+           var subjectMarksObtained = $("#subjectMarksObtained"+ i).val();  //  subjectMarks HERE...!!
+
+            var studentnew = new Object();       // new OBJECT of Student..
+            studentnew.subjectName = subjectName;
+            studentnew.subjectMarksObtained = subjectMarksObtained;
+            if( i == 0 )
+            {  studentnew.Totalno = Totalno;  }
+
+            obj1[i] = studentnew;
+
+           
+           
+        }
+
+        for (i = 0; i < noOfSubjects; i++)                   // for loop for sending string object to server side.
+        {
+             studentStr = JSON.stringify(obj1[i]);        // Object converts to string for sending to Server.
+                                                             // sending single string  to SERVER Side ONE by ONE .
+            $.ajax({
+                method: 'GET',
+                url: 'http://localhost:57440/WebService1.asmx/AddMarks',
+                contentType : 'application/json',
+                data:{
+                    request : studentStr
+                },
+                success: function(result){
+                    console.log(result);
+                }
+            });
+           
+         }          
+
+
+    }
+    
+
+       function Calculate(){
+
+            $.ajax({
+                    method: 'GET',
+                    url: 'http://localhost:57440/WebService1.asmx/GetMarks',        // Get Marks Method
+                    contentType : 'application/json',
+                    success: function(result){
+                        console.log(result);
+                    }
+                });             
+
+            $.ajax({
+                method: 'GET',
+                url: 'http://localhost:57440/WebService1.asmx/MinMarks',         // Minimum Marks Method
+                contentType : 'application/json',
+                success: function(result){
+                    console.log(result);
+                    $("#minMarks").val(result.d);
+                }
+            });
+
+            $.ajax({
+                method: 'GET',
+                url: 'http://localhost:57440/WebService1.asmx/minMarksSubject',  // Minimum Marks  Subject  Method
+                contentType : 'application/json',
+                success: function(result){
+                    console.log(result);
+                    $("#minMarksSubject").val(result.d);
+                }
+            });
+
+            $.ajax({
+                method: 'GET',
+                url: 'http://localhost:57440/WebService1.asmx/MaxMarks',     // Maximum Marks Method
+                contentType : 'application/json',
+                success: function(result){
+                    console.log(result);
+                    $("#maxMarks").val(result.d);
+                }
+            });
+
+            $.ajax({
+                method: 'GET',
+                url: 'http://localhost:57440/WebService1.asmx/maxMarksSubject',  // Maximum Marks  Subject  Method
+                contentType : 'application/json',
+                success: function(result){
+                    console.log(result);
+                    $("#maxMarksSubject").val(result.d);
+                }
+            });
+
+            $.ajax({
+                method: 'GET',
+                url: 'http://localhost:57440/WebService1.asmx/Percent',     // Percentage Calculation arra..
+                contentType : 'application/json',
+                success: function(result){
+                    console.log(result);
+                    $("#percentage").val(result.d);
+                }
+            });
+
+    }          
+
+
+           
+    function UIPopulate() {
+        var noOfSubjects = $('#noOfSubjects').val();
+
+        var h = '';
+        for (i = 0; i < noOfSubjects; i++) {
+
+            console.log('passed');
+            h += '<tr>';
+
+            h += '<td>';
+            h += '<span>Subject ' + (i + 1) + ' -> </span>';
+            h += '</td>';
+
+            h += '<td>';
+            h += '<span>Name :</span>';
+            h += '</td>';
+
+            h += '<td>';
+            h += '<input type="text" id="subjectName' + i + '"/>';
+            h += '</td>';
+
+            h += '<td>';
+            h += '<span>Marks Obtained :</span>';
+            h += '</td>';
+
+            h += '<td>';
+            h += '<input type="number" min="0" max="100" id="subjectMarksObtained' + i + '"/>';
+            h += '</td>';
+
+            h += '</tr>';
+
+        }
+      
+        $('#inputTable').html(h);
+
+       
+            
+
+    }
+</script>
+
+</html>
